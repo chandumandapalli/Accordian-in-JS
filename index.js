@@ -1,83 +1,90 @@
-(() => {
-  function accordion($rootEl, { sections }) {
-    function attachEvents() {
-      // Use Event Delegation.
-      $rootEl.addEventListener('click', (event) => {
-        const target = event.target;
-        if (
-          target.tagName !== 'BUTTON' ||
-          !target.classList.contains('accordion-item-title')
-        ) {
-          return;
+(()=>{
+
+//adding structure to the DOM 
+function init($rootEl, sections){
+    console.log('init called');
+    $rootEl.classList.add('.accordion');
+    const $accordionSections = document.createDocumentFragment();
+    sections.forEach(({value,title,contents},index)=>{
+        const $accordionItem = document.createElement('div');
+
+
+        $accordionItem.classList.add('accordion-item');
+
+        //creating a button in the accordion item .. 
+        const $accordionTitleBtn = document.createElement('button');
+        $accordionTitleBtn.classList.add('accordion-item-title');
+        $accordionTitleBtn.type='BUTTON';
+        $accordionTitleBtn.setAttribute('data-value',title);
+
+        //creating a span inside the accordion-item .. 
+        const $accordionTitleSpan = document.createElement('span');
+        $accordionTitleSpan.classList.add('accordion-icon');
+       
+        //appending title and span to button .. 
+        $accordionTitleBtn.append(title, $accordionTitleSpan);
+        $accordionTitleBtn.indexValue = index;
+
+        //creating contents div 
+        const $accordionContents = document.createElement('div');
+        $accordionContents.classList.add('accordion-item-content');
+        $accordionContents.textContent = contents;
+        $accordionContents.hidden = true;
+
+        
+
+        //adding both btn and contents to the accordion-item div. 
+
+        $accordionItem.append($accordionTitleBtn, $accordionContents)
+
+        //adding accordion-item to the fragment
+        $accordionSections.appendChild($accordionItem)
+
+    })
+    $rootEl.appendChild($accordionSections)
+}
+
+
+
+// event binding 
+
+function addEventBinding(){
+   const $rootEl= document.querySelector('#accordion');
+   let prevElement = null;
+   $rootEl.addEventListener('click',function (event){
+
+    const target = event.target;
+    if(target.type !=='button' || !target.classList.contains('accordion-item-title')) return;
+    // if the target is not a button or does not have the class accordion-item-title, exit the function
+
+    // if the target is a button, we will toggle the content visibility
+    // and also close the previous content if it exists
+    console.log(prevElement, target);
+
+    if(prevElement == null){
+        prevElement = target;
+
+    }
+    else{
+        if(prevElement.indexValue !== target.indexValue){
+            prevElement.nextElementSibling.hidden = true;
         }
-
-        // Find the icon and toggle the direction.
-        const $icon = target.querySelector(
-          '.accordion-icon',
-        );
-        $icon.classList.toggle('accordion-icon--rotated');
-
-        // Find the accordion contents and toggle the
-        // contents' visibility.
-        const $accordionContents = target.nextSibling;
-        $accordionContents.hidden =
-          !$accordionContents.hidden;
-      });
+        prevElement = target;
     }
 
-    function init() {
-      $rootEl.classList.add('accordion');
 
-      const $accordionSections =
-        document.createDocumentFragment();
+    const $accordionItem = target.closest('.accordion-item');
+    const $accordionContent = $accordionItem.querySelector('.accordion-item-content');
 
-      sections.forEach(({ value, title, contents }) => {
-        const $accordionSection =
-          document.createElement('div');
-        $accordionSection.classList.add('accordion-item');
+    $accordionContent.hidden = !$accordionContent.hidden;
 
-        const $accordionTitleBtn =
-          document.createElement('button');
-        $accordionTitleBtn.classList.add(
-          'accordion-item-title',
-        );
-        $accordionTitleBtn.type = 'button';
-        $accordionTitleBtn.setAttribute(
-          'data-value',
-          value,
-        );
+   })
 
-        const $accordionIcon =
-          document.createElement('span');
-        $accordionIcon.classList.add('accordion-icon');
-        $accordionIcon.setAttribute('aria-hidden', 'true');
 
-        $accordionTitleBtn.append(title, $accordionIcon);
+}
 
-        const $accordionSectionContents =
-          document.createElement('div');
-        $accordionSectionContents.classList.add(
-          'accordion-item-contents',
-        );
-        $accordionSectionContents.hidden = true;
-        $accordionSectionContents.textContent = contents;
 
-        $accordionSection.append(
-          $accordionTitleBtn,
-          $accordionSectionContents,
-        );
-        $accordionSections.append($accordionSection);
-      });
-
-      $rootEl.appendChild($accordionSections);
-    }
-
-    init();
-    attachEvents();
-  }
-
-  accordion(document.getElementById('accordion'), {
-    sections: [
+const sections = [
       {
         value: 'html',
         title: 'HTML',
@@ -96,6 +103,9 @@
         contents:
           'JavaScript, often abbreviated as JS, is a programming language that is one of the core technologies of the World Wide Web, alongside HTML and CSS.',
       },
-    ],
-  });
+    ]
+
+init(document.querySelector('#accordion'), sections)
+addEventBinding()
+ console.log('init called');
 })();
