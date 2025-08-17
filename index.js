@@ -1,3 +1,4 @@
+// writing IIFE to avoid mix with global scope
 (()=>{
 
 //adding structure to the DOM 
